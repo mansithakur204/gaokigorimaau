@@ -1,0 +1,72 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
+import CategoryCards from '@/components/CategoryCard';
+import SchemeCard from '@/components/SchemeCard';
+import { Input } from '@/components/ui/input';
+import VoiceSearch from '@/components/VoiceSearch';
+import { Search } from 'lucide-react';
+
+export default function Home() {
+  const { t } = useLanguage();
+  const [schemes, setSchemes] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSchemes = async () => {
+      const { data } = await supabase.from('schemes').select('*').order('created_at', { ascending: false }).limit(8);
+      setSchemes(data ?? []);
+      setLoading(false);
+    };
+    fetchSchemes();
+  }, []);
+
+  const filtered = schemes.filter(s =>
+    s.scheme_name.toLowerCase().includes(search.toLowerCase()) ||
+    s.details?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-10">
+      <CategoryCards />
+
+      <div>
+        <h2 className="text-2xl font-bold mb-4">{t('nav.schemes')}</h2>
+        <div className="flex gap-2 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={t('search.placeholder')}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-10 text-base"
+            />
+          </div>
+          <VoiceSearch onResult={setSearch} />
+        </div>
+
+        {loading ? (
+          <p className="text-center text-muted-foreground py-8">{t('common.loading')}</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">{t('search.noResults')}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filtered.map(s => (
+              <SchemeCard
+                key={s.id}
+                id={s.id}
+                schemeName={s.scheme_name}
+                details={s.details}
+                type={s.type}
+                category={s.category}
+                fundingAmount={s.funding_amount}
+                applicationLink={s.application_link}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
