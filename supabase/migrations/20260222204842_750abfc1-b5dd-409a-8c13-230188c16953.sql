@@ -1,0 +1,16 @@
+INSERT INTO public.schemes (scheme_name, details, type, category, funding_amount, application_link) VALUES
+('Central Sector Scholarship', 'Provides financial assistance to meritorious students from low-income families for higher education.', 'Central', 'Students', '₹ 10,000–20,000/year', 'https://scholarships.gov.in'),
+('AICTE Pragati Scholarship', 'Supports girl students pursuing technical education with financial assistance for tuition and other expenses.', 'Central', 'Students', '₹ 50,000/year', 'https://www.aicte-india.org'),
+('AICTE Saksham Scholarship', 'Scholarship for specially-abled students pursuing technical education to promote inclusive education.', 'Central', 'Students', '₹ 50,000/year', 'https://www.aicte-india.org'),
+('INSPIRE Scholarship', 'Encourages students to pursue science education with financial support for higher studies in science streams.', 'Central', 'Students', '₹ 80,000/year', 'https://online-inspire.gov.in'),
+('Pre Matric Scholarship for Minorities', 'Provides financial assistance to minority students studying in classes 1 to 10 to reduce dropout rates.', 'Central', 'Students', 'Up to ₹ 10,000/year', 'https://scholarships.gov.in'),
+('Merit Cum Means Scholarship', 'Financial support for professional and technical courses for minority students from economically weaker sections.', 'Central', 'Students', '₹ 20,000/year', 'https://scholarships.gov.in'),
+('National Talent Search Examination (NTSE)', 'Scholarship program identifying and supporting talented students across India.', 'Central', 'Students', '₹ 1,250–2,000/month', 'https://ncert.nic.in'),
+('PM Young Achievers Scholarship', 'Provides financial assistance to OBC and EBC students for quality education.', 'Central', 'Students', '₹ 75,000/year', 'https://yet.nta.ac.in'),
+('Top Class Education Scholarship for SC Students', 'Supports SC students studying in premier institutions with tuition and living expenses.', 'Central', 'Students', 'Full tuition + stipend', 'https://scholarships.gov.in'),
+('Top Class Education Scholarship for ST Students', 'Financial assistance for ST students pursuing higher education in top institutions.', 'Central', 'Students', 'Full tuition + stipend', 'https://scholarships.gov.in'),
+('Ishan Uday Scholarship', 'Special scholarship for students from North East region pursuing higher education.', 'Central', 'Students', '₹ 5,400–7,800/month', 'https://scholarships.gov.in'),
+('Begum Hazrat Mahal Scholarship', 'Scholarship for minority girl students to support secondary education.', 'Central', 'Students', '₹ 5,000/year', 'https://scholarships.gov.in'),
+('Prime Minister Research Fellowship', 'Fellowship for students pursuing PhD in premier institutes of India.', 'Central', 'Students', '₹ 70,000–80,000/month', 'https://www.pmrf.in'),
+('National Fellowship for OBC Students', 'Fellowship for OBC students pursuing higher education and research.', 'Central', 'Students', '₹ Fellowship support', 'https://scholarships.gov.in'),
+('Vidyasaarathi Scholarship', 'Corporate scholarship platform providing financial assistance for education.', 'Central', 'Students', 'Varies', 'https://www.vidyasaarathi.co.in');
