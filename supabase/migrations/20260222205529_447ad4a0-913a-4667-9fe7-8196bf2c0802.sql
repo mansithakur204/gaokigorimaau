@@ -1,0 +1,11 @@
+INSERT INTO public.schemes (scheme_name, details, type, category, funding_amount, application_link) VALUES
+('PM Jan Dhan Yojana', 'Financial inclusion scheme providing zero-balance bank accounts with insurance and overdraft facilities.', 'Central', 'General', 'Zero balance account + insurance', 'https://pmjdy.gov.in'),
+('PM Suraksha Bima Yojana', 'Accidental insurance scheme offering coverage at affordable premium for citizens.', 'Central', 'General', '₹2 lakh insurance', 'https://jansuraksha.gov.in'),
+('PM Jeevan Jyoti Bima Yojana', 'Life insurance scheme providing coverage for death due to any reason.', 'Central', 'General', '₹2 lakh insurance', 'https://jansuraksha.gov.in'),
+('Atal Pension Yojana', 'Pension scheme for unorganized sector workers ensuring fixed monthly pension after retirement.', 'Central', 'General', '₹1,000–₹5,000/month pension', 'https://npscra.nsdl.co.in'),
+('Digital India Programme', 'Initiative to promote digital infrastructure and services across India.', 'Central', 'General', 'Free digital services', 'https://digitalindia.gov.in'),
+('Skill India Mission', 'Provides skill training and certification to improve employability and entrepreneurship.', 'Central', 'General', 'Free skill training', 'https://skillindia.gov.in'),
+('Startup India Scheme', 'Encourages entrepreneurship with funding, tax benefits, and incubation support.', 'Central', 'General', 'Funding & tax benefits', 'https://www.startupindia.gov.in'),
+('Swachh Bharat Mission', 'Nationwide cleanliness campaign promoting sanitation and waste management infrastructure.', 'Central', 'General', 'Subsidy for toilets', 'https://swachhbharatmission.gov.in'),
+('National Social Assistance Programme', 'Provides financial assistance to elderly, widows, and disabled persons from poor households.', 'Central', 'General', 'Monthly pension support', 'https://nsap.nic.in'),
+('PM SVANidhi Scheme', 'Provides micro-credit loans to street vendors for business revival and growth.', 'Central', 'General', 'Loan up to ₹50,000', 'https://pmsvanidhi.mohua.gov.in');
