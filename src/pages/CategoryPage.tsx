@@ -4,9 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SchemeCard from '@/components/SchemeCard';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import VoiceSearch from '@/components/VoiceSearch';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const PAGE_SIZE = 12;
 
 export default function CategoryPage() {
   const { category } = useParams<{ category: string }>();
@@ -14,23 +17,28 @@ export default function CategoryPage() {
   const [schemes, setSchemes] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [stateFilter, setStateFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      let query = supabase.from('schemes').select('*').eq('category', category!).order('created_at', { ascending: false });
-      const { data } = await query;
+      const { data } = await supabase.from('schemes').select('*').eq('category', category!).order('created_at', { ascending: false });
       setSchemes(data ?? []);
       setLoading(false);
+      setVisibleCount(PAGE_SIZE);
     };
-    fetch();
+    fetchData();
   }, [category]);
+
+  const states = Array.from(new Set(schemes.map(s => s.state).filter(Boolean)));
 
   const filtered = schemes.filter(s => {
     const matchSearch = s.scheme_name.toLowerCase().includes(search.toLowerCase()) || s.details?.toLowerCase().includes(search.toLowerCase());
     const matchType = typeFilter === 'all' || s.type === typeFilter;
-    return matchSearch && matchType;
+    const matchState = stateFilter === 'all' || s.state === stateFilter;
+    return matchSearch && matchType && matchState;
   });
 
   const categoryTitle = t(`category.${category?.toLowerCase()}` as any) || category;
@@ -46,15 +54,22 @@ export default function CategoryPage() {
         </div>
         <VoiceSearch onResult={setSearch} />
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('search.filter')}</SelectItem>
             <SelectItem value="Central">{t('scheme.central')}</SelectItem>
             <SelectItem value="State">{t('scheme.state')}</SelectItem>
           </SelectContent>
         </Select>
+        {states.length > 1 && (
+          <Select value={stateFilter} onValueChange={setStateFilter}>
+            <SelectTrigger className="w-[160px]"><SelectValue placeholder="State" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All States</SelectItem>
+              {states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {loading ? (
@@ -62,20 +77,20 @@ export default function CategoryPage() {
       ) : filtered.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">{t('search.noResults')}</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map(s => (
-            <SchemeCard
-              key={s.id}
-              id={s.id}
-              schemeName={s.scheme_name}
-              details={s.details}
-              type={s.type}
-              category={s.category}
-              fundingAmount={s.funding_amount}
-              applicationLink={s.application_link}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.slice(0, visibleCount).map(s => (
+              <SchemeCard key={s.id} id={s.id} schemeName={s.scheme_name} details={s.details} type={s.type} category={s.category} fundingAmount={s.funding_amount} applicationLink={s.application_link} />
+            ))}
+          </div>
+          {visibleCount < filtered.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" onClick={() => setVisibleCount(c => c + PAGE_SIZE)} className="gap-2">
+                <Loader2 className="w-4 h-4" /> Load More ({filtered.length - visibleCount} remaining)
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

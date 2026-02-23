@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import AIChatbot from "@/components/AIChatbot";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -14,6 +16,10 @@ import CategoryPage from "@/pages/CategoryPage";
 import SchemeDetail from "@/pages/SchemeDetail";
 import SearchPage from "@/pages/SearchPage";
 import Profile from "@/pages/Profile";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
+import Disclaimer from "@/pages/Disclaimer";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminSchemes from "@/pages/admin/AdminSchemes";
@@ -30,23 +36,33 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/category/:category" element={<CategoryPage />} />
-              <Route path="/scheme/:id" element={<SchemeDetail />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="schemes" element={<AdminSchemes />} />
-                <Route path="upload" element={<AdminUpload />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/category/:category" element={<CategoryPage />} />
+                  <Route path="/scheme/:id" element={<SchemeDetail />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/disclaimer" element={<Disclaimer />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="schemes" element={<AdminSchemes />} />
+                    <Route path="upload" element={<AdminUpload />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+            <AIChatbot />
           </BrowserRouter>
         </AuthProvider>
       </LanguageProvider>
