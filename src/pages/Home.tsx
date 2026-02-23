@@ -4,18 +4,22 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import CategoryCards from '@/components/CategoryCard';
 import SchemeCard from '@/components/SchemeCard';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import VoiceSearch from '@/components/VoiceSearch';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
+
+const PAGE_SIZE = 12;
 
 export default function Home() {
   const { t } = useLanguage();
   const [schemes, setSchemes] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
     const fetchSchemes = async () => {
-      const { data } = await supabase.from('schemes').select('*').order('created_at', { ascending: false }).limit(8);
+      const { data } = await supabase.from('schemes').select('*').order('created_at', { ascending: false });
       setSchemes(data ?? []);
       setLoading(false);
     };
@@ -39,7 +43,7 @@ export default function Home() {
             <Input
               placeholder={t('search.placeholder')}
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => { setSearch(e.target.value); setVisibleCount(PAGE_SIZE); }}
               className="pl-10 text-base"
             />
           </div>
@@ -51,20 +55,29 @@ export default function Home() {
         ) : filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">{t('search.noResults')}</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map(s => (
-              <SchemeCard
-                key={s.id}
-                id={s.id}
-                schemeName={s.scheme_name}
-                details={s.details}
-                type={s.type}
-                category={s.category}
-                fundingAmount={s.funding_amount}
-                applicationLink={s.application_link}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filtered.slice(0, visibleCount).map(s => (
+                <SchemeCard
+                  key={s.id}
+                  id={s.id}
+                  schemeName={s.scheme_name}
+                  details={s.details}
+                  type={s.type}
+                  category={s.category}
+                  fundingAmount={s.funding_amount}
+                  applicationLink={s.application_link}
+                />
+              ))}
+            </div>
+            {visibleCount < filtered.length && (
+              <div className="text-center mt-8">
+                <Button variant="outline" onClick={() => setVisibleCount(c => c + PAGE_SIZE)} className="gap-2">
+                  <Loader2 className="w-4 h-4" /> Load More ({filtered.length - visibleCount} remaining)
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

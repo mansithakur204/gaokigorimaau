@@ -1,15 +1,27 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import CategoryCards from '@/components/CategoryCard';
+import SchemeCard from '@/components/SchemeCard';
 import heroImage from '@/assets/hero-rural.jpg';
 import { motion } from 'framer-motion';
-import { ArrowRight, Globe } from 'lucide-react';
+import { ArrowRight, Globe, Clock, Star } from 'lucide-react';
 
 export default function Landing() {
   const { t, toggleLang, lang } = useLanguage();
   const { user } = useAuth();
+  const [latestSchemes, setLatestSchemes] = useState<any[]>([]);
+  const [popularSchemes, setPopularSchemes] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from('schemes').select('*').order('created_at', { ascending: false }).limit(4)
+      .then(({ data }) => setLatestSchemes(data ?? []));
+    supabase.from('schemes').select('*').eq('is_popular', true).limit(4)
+      .then(({ data }) => setPopularSchemes(data ?? []));
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -60,6 +72,36 @@ export default function Landing() {
         <h2 className="text-3xl font-bold text-center mb-10">{t('nav.schemes')}</h2>
         <CategoryCards />
       </section>
+
+      {/* Latest Schemes */}
+      {latestSchemes.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <div className="flex items-center gap-2 mb-6">
+            <Clock className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold">Latest Schemes</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {latestSchemes.map(s => (
+              <SchemeCard key={s.id} id={s.id} schemeName={s.scheme_name} details={s.details} type={s.type} category={s.category} fundingAmount={s.funding_amount} applicationLink={s.application_link} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Popular Schemes */}
+      {popularSchemes.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <div className="flex items-center gap-2 mb-6">
+            <Star className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold">Popular Schemes</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {popularSchemes.map(s => (
+              <SchemeCard key={s.id} id={s.id} schemeName={s.scheme_name} details={s.details} type={s.type} category={s.category} fundingAmount={s.funding_amount} applicationLink={s.application_link} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

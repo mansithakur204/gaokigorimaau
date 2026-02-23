@@ -44,43 +44,61 @@ export type Database = {
       schemes: {
         Row: {
           application_link: string | null
+          benefits: string | null
           category: string
           created_at: string
           created_by: string | null
           details: string | null
+          documents: string | null
           eligibility: string | null
+          faq: Json | null
           funding_amount: string | null
+          helpline: string | null
           icon: string | null
           id: string
+          is_popular: boolean | null
           scheme_name: string
+          state: string | null
           type: string
           updated_at: string
         }
         Insert: {
           application_link?: string | null
+          benefits?: string | null
           category: string
           created_at?: string
           created_by?: string | null
           details?: string | null
+          documents?: string | null
           eligibility?: string | null
+          faq?: Json | null
           funding_amount?: string | null
+          helpline?: string | null
           icon?: string | null
           id?: string
+          is_popular?: boolean | null
           scheme_name: string
+          state?: string | null
           type: string
           updated_at?: string
         }
         Update: {
           application_link?: string | null
+          benefits?: string | null
           category?: string
           created_at?: string
           created_by?: string | null
           details?: string | null
+          documents?: string | null
           eligibility?: string | null
+          faq?: Json | null
           funding_amount?: string | null
+          helpline?: string | null
           icon?: string | null
           id?: string
+          is_popular?: boolean | null
           scheme_name?: string
+          state?: string | null
           type?: string
           updated_at?: string
         }

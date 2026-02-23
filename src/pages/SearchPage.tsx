@@ -3,9 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SchemeCard from '@/components/SchemeCard';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import VoiceSearch from '@/components/VoiceSearch';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const PAGE_SIZE = 12;
 
 export default function SearchPage() {
   const { t } = useLanguage();
@@ -13,7 +16,9 @@ export default function SearchPage() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [stateFilter, setStateFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
     supabase.from('schemes').select('*').order('created_at', { ascending: false }).then(({ data }) => {
@@ -22,11 +27,14 @@ export default function SearchPage() {
     });
   }, []);
 
+  const states = Array.from(new Set(schemes.map(s => s.state).filter(Boolean)));
+
   const filtered = schemes.filter(s => {
     const matchSearch = !search || s.scheme_name.toLowerCase().includes(search.toLowerCase()) || s.details?.toLowerCase().includes(search.toLowerCase());
     const matchCat = categoryFilter === 'all' || s.category === categoryFilter;
     const matchType = typeFilter === 'all' || s.type === typeFilter;
-    return matchSearch && matchCat && matchType;
+    const matchState = stateFilter === 'all' || s.state === stateFilter;
+    return matchSearch && matchCat && matchType && matchState;
   });
 
   return (
@@ -36,10 +44,10 @@ export default function SearchPage() {
       <div className="flex flex-wrap gap-2 mb-6">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder={t('search.placeholder')} value={search} onChange={e => setSearch(e.target.value)} className="pl-10 text-base" />
+          <Input placeholder={t('search.placeholder')} value={search} onChange={e => { setSearch(e.target.value); setVisibleCount(PAGE_SIZE); }} className="pl-10 text-base" />
         </div>
         <VoiceSearch onResult={setSearch} />
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+        <Select value={categoryFilter} onValueChange={v => { setCategoryFilter(v); setVisibleCount(PAGE_SIZE); }}>
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
@@ -49,7 +57,7 @@ export default function SearchPage() {
             <SelectItem value="General">{t('category.general')}</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setVisibleCount(PAGE_SIZE); }}>
           <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
@@ -57,6 +65,15 @@ export default function SearchPage() {
             <SelectItem value="State">{t('scheme.state')}</SelectItem>
           </SelectContent>
         </Select>
+        {states.length > 1 && (
+          <Select value={stateFilter} onValueChange={v => { setStateFilter(v); setVisibleCount(PAGE_SIZE); }}>
+            <SelectTrigger className="w-[160px]"><SelectValue placeholder="State" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All States</SelectItem>
+              {states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {loading ? (
@@ -64,11 +81,21 @@ export default function SearchPage() {
       ) : filtered.length === 0 ? (
         <p className="text-center text-muted-foreground py-8">{t('search.noResults')}</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map(s => (
-            <SchemeCard key={s.id} id={s.id} schemeName={s.scheme_name} details={s.details} type={s.type} category={s.category} fundingAmount={s.funding_amount} applicationLink={s.application_link} />
-          ))}
-        </div>
+        <>
+          <p className="text-sm text-muted-foreground mb-4">{filtered.length} scheme(s) found</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filtered.slice(0, visibleCount).map(s => (
+              <SchemeCard key={s.id} id={s.id} schemeName={s.scheme_name} details={s.details} type={s.type} category={s.category} fundingAmount={s.funding_amount} applicationLink={s.application_link} />
+            ))}
+          </div>
+          {visibleCount < filtered.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" onClick={() => setVisibleCount(c => c + PAGE_SIZE)} className="gap-2">
+                <Loader2 className="w-4 h-4" /> Load More ({filtered.length - visibleCount} remaining)
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
