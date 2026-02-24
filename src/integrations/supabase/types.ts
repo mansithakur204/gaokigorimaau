@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          scheme_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          scheme_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          scheme_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_scheme_id_fkey"
+            columns: ["scheme_id"]
+            isOneToOne: false
+            referencedRelation: "schemes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -46,6 +75,7 @@ export type Database = {
           application_link: string | null
           benefits: string | null
           category: string
+          click_count: number
           created_at: string
           created_by: string | null
           details: string | null
@@ -66,6 +96,7 @@ export type Database = {
           application_link?: string | null
           benefits?: string | null
           category: string
+          click_count?: number
           created_at?: string
           created_by?: string | null
           details?: string | null
@@ -86,6 +117,7 @@ export type Database = {
           application_link?: string | null
           benefits?: string | null
           category?: string
+          click_count?: number
           created_at?: string
           created_by?: string | null
           details?: string | null
@@ -134,6 +166,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_click_count: { Args: { scheme_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "citizen"
