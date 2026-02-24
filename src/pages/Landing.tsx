@@ -19,7 +19,7 @@ export default function Landing() {
   useEffect(() => {
     supabase.from('schemes').select('*').order('created_at', { ascending: false }).limit(4)
       .then(({ data }) => setLatestSchemes(data ?? []));
-    supabase.from('schemes').select('*').eq('is_popular', true).limit(4)
+    supabase.from('schemes').select('*').eq('is_popular', true).order('click_count', { ascending: false }).limit(4)
       .then(({ data }) => setPopularSchemes(data ?? []));
   }, []);
 

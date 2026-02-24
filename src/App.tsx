@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AIChatbot from "@/components/AIChatbot";
+import NewSchemeBanner from "@/components/NewSchemeBanner";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -20,6 +21,9 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Disclaimer from "@/pages/Disclaimer";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import EligibilityChecker from "@/pages/EligibilityChecker";
+import CompareSchemes from "@/pages/CompareSchemes";
+import SavedSchemes from "@/pages/SavedSchemes";
 import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminSchemes from "@/pages/admin/AdminSchemes";
@@ -37,6 +41,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <div className="flex flex-col min-h-screen">
+              <NewSchemeBanner />
               <Navbar />
               <main className="flex-1">
                 <Routes>
@@ -52,6 +57,9 @@ const App = () => (
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/disclaimer" element={<Disclaimer />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/eligibility" element={<EligibilityChecker />} />
+                  <Route path="/compare" element={<CompareSchemes />} />
+                  <Route path="/saved" element={<SavedSchemes />} />
                   <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
                     <Route path="schemes" element={<AdminSchemes />} />

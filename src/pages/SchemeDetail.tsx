@@ -2,24 +2,35 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ArrowLeft, ExternalLink, IndianRupee, CheckCircle, FileText, Gift, Phone, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ExternalLink, IndianRupee, CheckCircle, FileText, Gift, Phone, HelpCircle, Bookmark, BookmarkCheck } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 export default function SchemeDetail() {
   const { id } = useParams<{ id: string }>();
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [scheme, setScheme] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
     supabase.from('schemes').select('*').eq('id', id!).single().then(({ data }) => {
       setScheme(data);
       setLoading(false);
     });
-  }, [id]);
+    // Track click
+    supabase.rpc('increment_click_count', { scheme_id: id! });
+    // Check bookmark
+    if (user) {
+      supabase.from('bookmarks').select('id').eq('user_id', user.id).eq('scheme_id', id!).maybeSingle()
+        .then(({ data }) => setBookmarked(!!data));
+    }
+  }, [id, user]);
 
   if (loading) return <div className="container mx-auto px-4 py-16 text-center text-muted-foreground">{t('common.loading')}</div>;
   if (!scheme) return <div className="container mx-auto px-4 py-16 text-center">Scheme not found</div>;
@@ -41,6 +52,27 @@ export default function SchemeDetail() {
           </div>
 
           <h1 className="text-2xl md:text-3xl font-bold">{scheme.scheme_name}</h1>
+
+          <Button
+            variant={bookmarked ? 'default' : 'outline'}
+            size="sm"
+            className="gap-2 w-fit"
+            onClick={async () => {
+              if (!user) { toast({ title: 'Please login to save schemes', variant: 'destructive' }); return; }
+              if (bookmarked) {
+                await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('scheme_id', id!);
+                setBookmarked(false);
+                toast({ title: 'Removed from saved' });
+              } else {
+                await supabase.from('bookmarks').insert({ user_id: user.id, scheme_id: id! });
+                setBookmarked(true);
+                toast({ title: 'Scheme saved!' });
+              }
+            }}
+          >
+            {bookmarked ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+            {bookmarked ? 'Saved' : 'Save Scheme'}
+          </Button>
 
           {scheme.funding_amount && (
             <div className="flex items-center gap-2 text-lg font-semibold text-secondary">

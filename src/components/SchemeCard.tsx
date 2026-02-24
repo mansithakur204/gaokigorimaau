@@ -2,8 +2,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ExternalLink, IndianRupee, Sprout, GraduationCap, Heart } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { ExternalLink, IndianRupee, Sprout, GraduationCap, Heart, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 interface SchemeCardProps {
   id: string;
@@ -29,6 +33,36 @@ const categoryColors: Record<string, string> = {
 
 export default function SchemeCard({ id, schemeName, details, type, category, fundingAmount, applicationLink }: SchemeCardProps) {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const [bookmarked, setBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('bookmarks').select('id').eq('user_id', user.id).eq('scheme_id', id).maybeSingle()
+      .then(({ data }) => setBookmarked(!!data));
+  }, [user, id]);
+
+  const toggleBookmark = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      toast({ title: 'Please login to save schemes', variant: 'destructive' });
+      return;
+    }
+    if (bookmarked) {
+      await supabase.from('bookmarks').delete().eq('user_id', user.id).eq('scheme_id', id);
+      setBookmarked(false);
+      toast({ title: 'Scheme removed from saved' });
+    } else {
+      await supabase.from('bookmarks').insert({ user_id: user.id, scheme_id: id });
+      setBookmarked(true);
+      toast({ title: 'Scheme saved!' });
+    }
+  };
+
+  const trackClick = () => {
+    supabase.rpc('increment_click_count', { scheme_id: id });
+  };
 
   return (
     <Card className="category-card-hover flex flex-col">
@@ -38,7 +72,12 @@ export default function SchemeCard({ id, schemeName, details, type, category, fu
             <span className="mr-1">{categoryIcons[category]}</span>
             {category}
           </Badge>
-          <Badge variant="outline">{type}</Badge>
+          <div className="flex items-center gap-1">
+            <Badge variant="outline">{type}</Badge>
+            <button onClick={toggleBookmark} className="p-1 rounded hover:bg-muted transition-colors">
+              {bookmarked ? <BookmarkCheck className="w-4 h-4 text-primary" /> : <Bookmark className="w-4 h-4 text-muted-foreground" />}
+            </button>
+          </div>
         </div>
         <CardTitle className="text-lg mt-2 line-clamp-2">{schemeName}</CardTitle>
       </CardHeader>
@@ -52,7 +91,7 @@ export default function SchemeCard({ id, schemeName, details, type, category, fu
         )}
       </CardContent>
       <CardFooter className="pt-0 gap-2">
-        <Link to={`/scheme/${id}`} className="flex-1">
+        <Link to={`/scheme/${id}`} className="flex-1" onClick={trackClick}>
           <Button variant="outline" className="w-full" size="sm">{t('scheme.details')}</Button>
         </Link>
         {applicationLink && (
