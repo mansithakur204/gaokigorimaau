@@ -6,15 +6,26 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import CategoryCards from '@/components/CategoryCard';
 import SchemeCard from '@/components/SchemeCard';
-import heroImage from '@/assets/hero-rural.jpg';
-import { motion } from 'framer-motion';
-import { ArrowRight, Globe, Clock, Star } from 'lucide-react';
+import heroRural from '@/assets/hero-rural.jpg';
+import carouselFarmer from '@/assets/carousel-farmer.jpg';
+import carouselStudents from '@/assets/carousel-students.jpg';
+import carouselWomen from '@/assets/carousel-women.jpg';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Globe, Clock, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const SLIDES = [
+  { img: heroRural, titleKey: 'landing.title', subtitleKey: 'landing.subtitle' },
+  { img: carouselFarmer, titleKey: 'carousel.farmerTitle', subtitleKey: 'carousel.farmerSubtitle' },
+  { img: carouselStudents, titleKey: 'carousel.studentTitle', subtitleKey: 'carousel.studentSubtitle' },
+  { img: carouselWomen, titleKey: 'carousel.womenTitle', subtitleKey: 'carousel.womenSubtitle' },
+];
 
 export default function Landing() {
   const { t, toggleLang, lang } = useLanguage();
   const { user } = useAuth();
   const [latestSchemes, setLatestSchemes] = useState<any[]>([]);
   const [popularSchemes, setPopularSchemes] = useState<any[]>([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     supabase.from('schemes').select('*').order('created_at', { ascending: false }).limit(4)
@@ -23,30 +34,55 @@ export default function Landing() {
       .then(({ data }) => setPopularSchemes(data ?? []));
   }, []);
 
+  // Auto-advance carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const goTo = (dir: number) => {
+    setCurrentSlide(prev => (prev + dir + SLIDES.length) % SLIDES.length);
+  };
+
+  const slide = SLIDES[currentSlide];
+
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImage} alt="Rural India" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-transparent" />
-        </div>
-        <div className="relative container mx-auto px-4 py-24 md:py-40">
+      {/* Hero Carousel */}
+      <section className="relative overflow-hidden h-[60vh] md:h-[80vh]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            className="absolute inset-0"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            <img src={slide.img} alt="Rural India" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-transparent" />
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="relative container mx-auto px-4 h-full flex items-center z-10">
           <div className="max-w-2xl space-y-6">
             <motion.div
+              key={`text-${currentSlide}`}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
               <Button variant="outline" size="sm" onClick={toggleLang} className="mb-4 bg-card/20 border-card/30 text-card gap-1 backdrop-blur-sm">
                 <Globe className="w-4 h-4" />
                 {lang === 'en' ? 'हिंदी में देखें' : 'View in English'}
               </Button>
               <h1 className="text-4xl md:text-6xl font-extrabold text-card leading-tight">
-                {t('landing.title')}
+                {t(slide.titleKey)}
               </h1>
               <p className="text-lg md:text-xl text-card/80 mt-4">
-                {t('landing.subtitle')}
+                {t(slide.subtitleKey)}
               </p>
               <div className="flex flex-wrap gap-3 mt-8">
                 <Link to="/home">
@@ -64,6 +100,36 @@ export default function Landing() {
               </div>
             </motion.div>
           </div>
+        </div>
+
+        {/* Carousel Controls */}
+        <button
+          onClick={() => goTo(-1)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-card/20 backdrop-blur-sm hover:bg-card/40 text-card rounded-full p-2 transition-colors"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <button
+          onClick={() => goTo(1)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-card/20 backdrop-blur-sm hover:bg-card/40 text-card rounded-full p-2 transition-colors"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentSlide(i)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                i === currentSlide ? 'bg-card w-8' : 'bg-card/40'
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
         </div>
       </section>
 
