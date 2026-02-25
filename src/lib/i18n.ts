@@ -66,6 +66,14 @@ const translations: Record<string, Record<Language, string>> = {
   'common.delete': { en: 'Delete', hi: 'हटाएं' },
   'common.edit': { en: 'Edit', hi: 'संपादित करें' },
   'common.back': { en: 'Back', hi: 'वापस' },
+
+  // Carousel
+  'carousel.farmerTitle': { en: 'Empowering Farmers', hi: 'किसानों को सशक्त बनाना' },
+  'carousel.farmerSubtitle': { en: 'Access subsidies, loans & agricultural support schemes', hi: 'सब्सिडी, ऋण और कृषि सहायता योजनाएं प्राप्त करें' },
+  'carousel.studentTitle': { en: 'Bright Futures for Students', hi: 'छात्रों के लिए उज्ज्वल भविष्य' },
+  'carousel.studentSubtitle': { en: 'Scholarships, skill development & education support', hi: 'छात्रवृत्ति, कौशल विकास और शिक्षा सहायता' },
+  'carousel.womenTitle': { en: 'Women Empowerment', hi: 'महिला सशक्तिकरण' },
+  'carousel.womenSubtitle': { en: 'Safety, welfare & financial independence schemes', hi: 'सुरक्षा, कल्याण और वित्तीय स्वतंत्रता योजनाएं' },
 };
 
 export function t(key: string, lang: Language): string {
